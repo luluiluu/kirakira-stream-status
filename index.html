@@ -67,7 +67,6 @@
       }
     }
   </style>
-  <script src="config.js"></script>
 </head>
 <body>
   <h1>💎きらきらあーくメンバー配信状況💎</h1>
@@ -91,67 +90,43 @@
     ];
 
     async function fetchUsers() {
-      const headers = {
-        'Client-ID': CLIENT_ID,
-        'Authorization': `Bearer ${ACCESS_TOKEN}`
-      };
+  try {
+    const res = await fetch('/api/getStreamData');
+    const { users, streams } = await res.json();
 
-      const usersUrl = `https://api.twitch.tv/helix/users?${streamers.map(name => `login=${name}`).join('&')}`;
-      const streamsUrl = `https://api.twitch.tv/helix/streams?${streamers.map(name => `user_login=${name}`).join('&')}`;
-
-      const [usersRes, streamsRes] = await Promise.all([
-        fetch(usersUrl, { headers }),
-        fetch(streamsUrl, { headers })
-      ]);
-
-      const usersData = await usersRes.json();
-      const streamsData = await streamsRes.json();
-
-      const userMap = {};
-      usersData.data.forEach(user => {
-        userMap[user.login] = user;
-      });
-
-      const liveMap = {};
-      streamsData.data.forEach(stream => {
-        liveMap[stream.user_login] = {
-          title: stream.title
-        };
-      });
-
-      const container = document.getElementById('streamers');
-      container.innerHTML = '';
-
-      const sortedStreamers = [...streamers].sort((a, b) => {
-        const aOnline = liveMap[a] ? -1 : 1;
-        const bOnline = liveMap[b] ? -1 : 1;
-        return aOnline - bOnline;
-      });
-
-      sortedStreamers.forEach(login => {
-        const user = userMap[login];
-        if (!user) return;
-
-        const liveInfo = liveMap[login];
-        const isOnline = !!liveInfo;
-
-        let titleHTML = '';
-        if (isOnline) {
-          titleHTML = `<div class="info">${liveInfo.title}</div>`;
-        }
-
-        const div = document.createElement('div');
-        div.className = 'streamer';
-        div.innerHTML = `
-          <a href="https://www.twitch.tv/${user.login}" target="_blank">
-            <img src="${user.profile_image_url}" class="profile ${isOnline ? 'online' : 'offline'}">
-            <p>${user.display_name}</p>
-          </a>
-          ${titleHTML}
-        `;
-        container.appendChild(div);
-      });
+    const liveMap = new Map();
+    for (const stream of streams) {
+      liveMap.set(stream.user_login, stream);
     }
+
+    const container = document.getElementById('streamers');
+    container.innerHTML = '';
+
+    const sortedUsers = users.sort((a, b) => {
+      const aLive = liveMap.has(a.login) ? -1 : 1;
+      const bLive = liveMap.has(b.login) ? -1 : 1;
+      return aLive - bLive;
+    });
+
+    for (const user of sortedUsers) {
+      const isLive = liveMap.has(user.login);
+      const stream = liveMap.get(user.login);
+
+      const div = document.createElement('div');
+      div.className = 'streamer';
+      div.innerHTML = `
+        <a href="https://www.twitch.tv/${user.login}" target="_blank">
+          <img src="${user.profile_image_url}" class="profile ${isLive ? 'online' : 'offline'}">
+          <p>${user.display_name}</p>
+        </a>
+        ${isLive ? `<div class="info">${stream.title}</div>` : ''}
+      `;
+      container.appendChild(div);
+    }
+  } catch (err) {
+    console.error('配信情報の取得に失敗しました', err);
+  }
+}
 
     fetchUsers();
   </script>

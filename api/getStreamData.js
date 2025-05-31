@@ -7,9 +7,18 @@ export default async function handler(req, res) {
   console.log("🔑 ACCESS_TOKEN:", ACCESS_TOKEN ? "[OK]" : "[空]");
 
   const streamers = [
-    'luluiluu', 'yuzukitsuzuruki', 'mimyou', 'shupeso3',
-    'ww_okasama_ww', 'namb1000', 'dago_makaseroi', 'sikanohea',
-    'raziii03', 'kixxxgame', 'baccsan', 'inoue_takina_patimon'
+    'luluiluu', 
+    'yuzukitsuzuruki', 
+    'mimyou', 
+    'shupeso3',
+    'ww_okasama_ww', 
+    'namb1000', 
+    'dago_makaseroi', 
+    'sikanohea',
+    'raziii03', 
+    'kixxxgame', 
+    'baccsan', 
+    'inoue_takina_patimon'
   ];
 
   try {

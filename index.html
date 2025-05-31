@@ -102,11 +102,11 @@
     const container = document.getElementById('streamers');
     container.innerHTML = '';
 
-　　const sortedStreamers = streamers.filter(s => liveMap.has(s))
-  　.concat(streamers.filter(s => !liveMap.has(s)));
+　　const sortedStreamers = streamers.filter(s => liveMap.has(s.toLowerCase()))
+  　.concat(streamers.filter(s => !liveMap.has(s.toLowerCase())));
 
     for (const login of sortedStreamers) {
-    const user = users.find(u => u.login === login);
+    const user = users.find(u => u.login.toLowerCase() === login.toLowerCase());
     if (!user) continue;
       
       const isLive = liveMap.has(user.login);

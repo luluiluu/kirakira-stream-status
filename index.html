@@ -105,7 +105,10 @@
     const sortedStreamers = streamers.filter(s => liveMap[s])
     .concat(streamers.filter(s => !liveMap[s]));
 
-    for (const user of sortedUsers) {
+    for (const login of sortedStreamers) {
+    const user = users.find(u => u.login === login);
+    if (!user) continue;
+      
       const isLive = liveMap.has(user.login);
       const stream = liveMap.get(user.login);
 

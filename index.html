@@ -102,11 +102,8 @@
     const container = document.getElementById('streamers');
     container.innerHTML = '';
 
-    const sortedUsers = users.sort((a, b) => {
-      const aLive = liveMap.has(a.login) ? -1 : 1;
-      const bLive = liveMap.has(b.login) ? -1 : 1;
-      return aLive - bLive;
-    });
+    const sortedStreamers = streamers.filter(s => liveMap[s])
+    .concat(streamers.filter(s => !liveMap[s]));
 
     for (const user of sortedUsers) {
       const isLive = liveMap.has(user.login);

@@ -18,8 +18,8 @@ export default async function handler(req, res) {
       'Authorization': `Bearer ${ACCESS_TOKEN}`
     };
 
-    const usersUrl = `https://api.twitch.tv/helix/users?${streamers.map(name => `login=${name}`).join('&')}`;
-    const streamsUrl = `https://api.twitch.tv/helix/streams?${streamers.map(name => `user_login=${name}`).join('&')}`;
+    const usersUrl = `https://api.twitch.tv/helix/users?${streamers.map(name => `login=${encodeURIComponent(name)}`).join('&')}`;
+    const streamsUrl = `https://api.twitch.tv/helix/streams?${streamers.map(name => `user_login=${encodeURIComponent(name)}`).join('&')}`;
 
     const [usersRes, streamsRes] = await Promise.all([
       fetch(usersUrl, { headers }),

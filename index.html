@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>きらきらあーくメンバー配信状況</title>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=RocknRoll+One&family=Yusei+Magic&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(to bottom, #fff89a, #b0dcf4, #c0a7ea);
+      min-height: 100vh;
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 2.5rem;
+      font-family: 'RocknRoll One', sans-serif;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      column-gap: 0;
+      row-gap: 2.3rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .streamer {
+      text-align: center;
+      margin: 0;
+      padding: 0 0.05rem;
+    }
+    .streamer a {
+      text-decoration: none;
+      color: inherit;
+    }
+    .streamer img.profile {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      transition: filter 0.3s, opacity 0.3s;
+      margin: 0;
+    }
+    .streamer p {
+      margin: 0.2rem 0 0 0;
+    }
+    .offline {
+      filter: grayscale(100%);
+      opacity: 0.5;
+    }
+    .online {
+      filter: none;
+      opacity: 1;
+    }
+    .info {
+      font-size: 0.75rem;
+      font-weight: normal;
+      color: #555;
+      margin-top: 0.3rem;
+    }
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .grid {
+        grid-template-columns: repeat(1, 1fr);
+      }
+    }
+  </style>
+  <script src="config.js"></script>
+</head>
+<body>
+  <h1>💎きらきらあーくメンバー配信状況💎</h1>
+
+  <div class="grid" id="streamers"></div>
+
+  <script>
+    const streamers = [
+      'luluiluu',
+      'yuzukitsuzuruki',
+      'mimyou',
+      'shupeso3',
+      'ww_okasama_ww',
+      'namb1000',
+      'dago_makaseroi',
+      'sikanohea',
+      'raziii03',
+      'kixxxgame',
+      'baccsan',
+      'inoue_takina_patimon'
+    ];
+
+    async function fetchUsers() {
+      const headers = {
+        'Client-ID': CLIENT_ID,
+        'Authorization': `Bearer ${ACCESS_TOKEN}`
+      };
+
+      const usersUrl = `https://api.twitch.tv/helix/users?${streamers.map(name => `login=${name}`).join('&')}`;
+      const streamsUrl = `https://api.twitch.tv/helix/streams?${streamers.map(name => `user_login=${name}`).join('&')}`;
+
+      const [usersRes, streamsRes] = await Promise.all([
+        fetch(usersUrl, { headers }),
+        fetch(streamsUrl, { headers })
+      ]);
+
+      const usersData = await usersRes.json();
+      const streamsData = await streamsRes.json();
+
+      const userMap = {};
+      usersData.data.forEach(user => {
+        userMap[user.login] = user;
+      });
+
+      const liveMap = {};
+      streamsData.data.forEach(stream => {
+        liveMap[stream.user_login] = {
+          title: stream.title
+        };
+      });
+
+      const container = document.getElementById('streamers');
+      container.innerHTML = '';
+
+      const sortedStreamers = [...streamers].sort((a, b) => {
+        const aOnline = liveMap[a] ? -1 : 1;
+        const bOnline = liveMap[b] ? -1 : 1;
+        return aOnline - bOnline;
+      });
+
+      sortedStreamers.forEach(login => {
+        const user = userMap[login];
+        if (!user) return;
+
+        const liveInfo = liveMap[login];
+        const isOnline = !!liveInfo;
+
+        let titleHTML = '';
+        if (isOnline) {
+          titleHTML = `<div class="info">${liveInfo.title}</div>`;
+        }
+
+        const div = document.createElement('div');
+        div.className = 'streamer';
+        div.innerHTML = `
+          <a href="https://www.twitch.tv/${user.login}" target="_blank">
+            <img src="${user.profile_image_url}" class="profile ${isOnline ? 'online' : 'offline'}">
+            <p>${user.display_name}</p>
+          </a>
+          ${titleHTML}
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    fetchUsers();
+  </script>
+</body>
+</html>

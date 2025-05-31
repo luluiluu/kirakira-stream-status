@@ -102,8 +102,8 @@
     const container = document.getElementById('streamers');
     container.innerHTML = '';
 
-    const sortedStreamers = streamers.filter(s => liveMap[s])
-    .concat(streamers.filter(s => !liveMap[s]));
+　　const sortedStreamers = streamers.filter(s => liveMap.has(s))
+  　.concat(streamers.filter(s => !liveMap.has(s)));
 
     for (const login of sortedStreamers) {
     const user = users.find(u => u.login === login);

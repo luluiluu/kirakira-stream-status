@@ -2,19 +2,14 @@ export default async function handler(req, res) {
   const CLIENT_ID = process.env.TWITCH_CLIENT_ID;
   const ACCESS_TOKEN = process.env.TWITCH_ACCESS_TOKEN;
 
+  console.log("🔧 Twitch API リクエスト開始");
+  console.log("🔑 CLIENT_ID:", CLIENT_ID ? "[OK]" : "[空]");
+  console.log("🔑 ACCESS_TOKEN:", ACCESS_TOKEN ? "[OK]" : "[空]");
+
   const streamers = [
-    'luluiluu',
-    'yuzukitsuzuruki',
-    'mimyou',
-    'shupeso3',
-    'ww_okasama_ww',
-    'namb1000',
-    'dago_makaseroi',
-    'sikanohea',
-    'raziii03',
-    'kixxxgame',
-    'baccsan',
-    'inoue_takina_patimon'
+    'luluiluu', 'yuzukitsuzuruki', 'mimyou', 'shupeso3',
+    'ww_okasama_ww', 'namb1000', 'dago_makaseroi', 'sikanohea',
+    'raziii03', 'kixxxgame', 'baccsan', 'inoue_takina_patimon'
   ];
 
   try {
@@ -34,13 +29,16 @@ export default async function handler(req, res) {
     const usersData = await usersRes.json();
     const streamsData = await streamsRes.json();
 
+    console.log("📦 usersData:", usersData);
+    console.log("📦 streamsData:", streamsData);
+
     res.status(200).json({
       users: usersData.data,
       streams: streamsData.data
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("🔥 APIエラー:", err);
     res.status(500).json({ error: 'Failed to fetch Twitch data' });
   }
 }
